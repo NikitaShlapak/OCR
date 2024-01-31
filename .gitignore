@@ -1,5 +1,6 @@
-/logs/*
+/logs
 /.venv
 /venv
 /.idea
-/models/*
+/models
+/tmp
