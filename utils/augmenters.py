@@ -121,7 +121,7 @@ class MultipleAugmenter():
         self.images = images
         self.captions = captions
         self._apply_noise()
-        self._normalize()
+        # self._normalize()
 
     def _apply_noise(self):
         for n, im in enumerate(self.images):
