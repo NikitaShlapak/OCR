@@ -5,26 +5,32 @@ import matplotlib.pyplot as plt
 
 
 def form_sample(x, y, w, h, letter_crop, out_size):
-    size_max = max(w, h)
-    letter_square = 255 * np.ones(shape=[size_max, size_max], dtype=np.uint8)
+    if out_size > 0:
+        size_max = max(w, h)
+        letter_square = 255 * np.ones(shape=[size_max, size_max], dtype=np.uint8)
 
-    if w > h:
-        # Enlarge image top-bottom
-        # ------
-        # ======
-        # ------
-        y_pos = size_max // 2 - h // 2
-        letter_square[y_pos:y_pos + h, 0:w] = letter_crop[:h, :w]
-    elif w < h:
-        # Enlarge image left-right
-        # --||--
-        x_pos = size_max // 2 - w // 2
-        letter_square[0:h, x_pos:x_pos + w] = letter_crop[:h, :w]
+        if w > h:
+            # Enlarge image top-bottom
+            # ------
+            # ======
+            # ------
+            y_pos = size_max // 2 - h // 2
+            letter_square[y_pos:y_pos + h, 0:w] = letter_crop[:h, :w]
+        elif w < h:
+            # Enlarge image left-right
+            # --||--
+            x_pos = size_max // 2 - w // 2
+            letter_square[0:h, x_pos:x_pos + w] = letter_crop[:h, :w]
+        else:
+            letter_square = letter_crop
+
+        # Resize letter to 28x28 and add letter and its X-coordinate
+
+        letter_square =  cv2.resize(letter_square, (out_size, out_size), interpolation=cv2.INTER_AREA)
     else:
         letter_square = letter_crop
-
-    # Resize letter to 28x28 and add letter and its X-coordinate
-    return (x,y), (w,h), cv2.resize(letter_square, (out_size, out_size), interpolation=cv2.INTER_AREA)
+        
+    return (x,y), (w,h), letter_square
 
 
 def letters_extract(img, out_size=28, scale_factor=3, erode_core=3, num_erosions=1,split_trashold=200, verbose=False):
