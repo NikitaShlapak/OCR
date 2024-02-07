@@ -5,3 +5,8 @@
 /models/*.keras
 /tmp
 *.h5
+letter recognition/logs
+letter recognition/tmp
+/test/*.jpg
+/test/
+data/extracted
