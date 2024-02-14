@@ -26,6 +26,7 @@ class BaseAugmenter():
 
 class NoiseAugmenter(BaseAugmenter):
     def _apply(self, letter, max=30):
+        max = (255 - np.array(letter)).max() * max / 100
         noise = np.random.normal(size=(letter.shape)) * max
         return letter + noise
 
@@ -66,31 +67,36 @@ class MultipleAugmenter():
 
     ROTATE_CHANCE = 0.15
 
-    BLUR_CHANCE = 0.1
+    BLUR_CHANCE = 0.99
     BLUR_HARD_CHANCE = 0.05
 
     images = []
     captions = []
 
-    def __init__(self, images, captions):
+    def __init__(self, images, captions, augmenters=[], augment_args=[]):
         self.images_orig = images
         self.captions_orig = captions
-        self.augmenters = [
-            FlipAugmenter(self.FLIP_CHANCE),
-            RotationAugmenter(self.ROTATE_CHANCE),
-            BlurAugmenter(self.BLUR_CHANCE),
-            BlurAugmenter(self.BLUR_HARD_CHANCE),
+        if not augmenters:
+            self.augmenters = [
+                FlipAugmenter(self.FLIP_CHANCE),
+                RotationAugmenter(self.ROTATE_CHANCE),
+                BlurAugmenter(self.BLUR_CHANCE),
+                BlurAugmenter(self.BLUR_HARD_CHANCE),
 
-        ]
+            ]
+        else:
+            self.augmenters = augmenters
         self.noise = (NoiseAugmenter(self.NOISE_CHANCE), self.NOISE_HARDNESS)
+        if not augment_args:
+            self.augment_args = [
+                ['random'],
+                [],
+                [3],
+                [5],
 
-        self.augment_args = [
-            ['random'],
-            [],
-            [3],
-            [5],
-
-        ]
+            ]
+        else:
+            self.augment_args = augment_args
 
     def random_augment(self, rounds=1, seed=42, save_last=False):
         random.seed(seed)
@@ -120,8 +126,9 @@ class MultipleAugmenter():
 
         self.images = images
         self.captions = captions
+        self._smooth(0.9)
         self._apply_noise()
-        # self._normalize()
+        self._normalize()
 
     def _apply_noise(self):
         for n, im in enumerate(self.images):
@@ -134,3 +141,10 @@ class MultipleAugmenter():
         for n, im in enumerate(self.images):
             im = np.array(im)
             self.images[n] = im / im.max()
+
+    def _smooth(self, probability=0.5):
+        for n, im in enumerate(self.images):
+
+            if random.random() < probability:
+                im = np.array(im)
+                self.images[n] = cv2.GaussianBlur(im, (7, 7), 1)

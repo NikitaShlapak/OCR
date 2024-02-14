@@ -135,7 +135,7 @@ def word_extract(img, out_size=0,
 def slicing_window_transform(img, window_width_factor=0.5, window_step=1, output_size=28):
     windows = []
 
-    h, w = img.shape
+    h, w = img.shape[:2]
 
     if 1 - h / w < 0.1:
         windows = [cv2.resize(img, (output_size,) * 2, interpolation=cv2.INTER_AREA)]
@@ -145,9 +145,9 @@ def slicing_window_transform(img, window_width_factor=0.5, window_step=1, output
         while x < w - window_w:
 
             size_max = max(window_w, h)
-            patch_square = 255 * np.ones(shape=[size_max, size_max], dtype=np.uint8)
+            patch_square = 255 * np.ones(shape=[size_max, size_max, img.shape[2]], dtype=np.uint8)
 
-            letter_crop = img[:, x:x + window_w]
+            letter_crop = img[:, x:x + window_w, :]
 
             if window_w > h:
                 # Enlarge image top-bottom
@@ -155,12 +155,12 @@ def slicing_window_transform(img, window_width_factor=0.5, window_step=1, output
                 # ======
                 # ------
                 y_pos = size_max // 2 - h // 2
-                patch_square[y_pos:y_pos + h, :window_w] = letter_crop[:h, :window_w]
+                patch_square[y_pos:y_pos + h, :window_w, :] = letter_crop[:h, :window_w, :]
             elif window_w < h:
                 # Enlarge image left-right
                 # --||--
                 x_pos = size_max // 2 - window_w // 2
-                patch_square[:h, x_pos:x_pos + window_w] = letter_crop[:h, :window_w]
+                patch_square[:h, x_pos:x_pos + window_w, :] = letter_crop[:h, :window_w, :]
             else:
                 patch_square = letter_crop
 
