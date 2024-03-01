@@ -11,3 +11,9 @@ letter recognition/tmp
 /test/*.jpg
 /test/
 data/extracted
+/keras-ocr/fonts
+/keras-ocr/r_fonts
+/keras-ocr/r_fonts1
+/keras-ocr/backgrounds
+/keras-ocr/*.zip
+/keras-ocr/*.keras
